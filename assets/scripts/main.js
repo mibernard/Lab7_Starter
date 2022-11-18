@@ -21,11 +21,12 @@ async function init() {
   let recipes;
   try {
     recipes = await getRecipes();
+    addRecipesToDocument(recipes);
   } catch (err) {
     console.error(err);
   }
   // Add each recipe to the <main> element
-  addRecipesToDocument(recipes);
+  
 }
 
 /**
@@ -69,7 +70,7 @@ async function getRecipes() {
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
 
-  let recipes = JSON.parse(localStorage.getItem(recipes));
+  let recipes = JSON.parse(localStorage.getItem("recipes"));
   if (recipes) return recipes;
 
   /**************************/
@@ -85,14 +86,17 @@ async function getRecipes() {
   //            take two parameters - resolve, and reject. These are functions
   //            you can call to either resolve the Promise or Reject it.
 
-  let recipePromise = new Promise((resolve, reject) => {
-    for (let i = 0; i < RECIPE_URLS.length(); i++) {
+  let recipePromise = new Promise(async (resolve, reject) => {
+    for (let i = 0; i < RECIPE_URLS.length; i++) {
       try {
-        const recipe = fetch(RECIPE_URLS[i]).then((Response) =>
-          Response.json()
-        );
-        recipeArr[i] = recipe;
-        if (i == RECIPE_URLS.length() - 1) {
+        
+        const recipe = await fetch(RECIPE_URLS[i]);
+        let response = await recipe.json();
+        // .then((Response) =>
+        //   Response.json()
+        // );
+        recipeArr.push(response);
+        if (i == RECIPE_URLS.length - 1) {
           saveRecipesToStorage(recipeArr);
         }
         resolve(recipeArr);
